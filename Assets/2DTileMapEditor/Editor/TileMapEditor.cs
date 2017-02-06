@@ -14,7 +14,12 @@ namespace TileMapEditor
         public override void OnInspectorGUI()
         {
             EditorGUILayout.BeginVertical();
-            map.MapSize=EditorGUILayout.Vector2Field("Map Size:", map.MapSize);
+
+            var oldSize = map.mapSize;
+            map.mapSize=EditorGUILayout.Vector2Field("Map Size:", map.mapSize);
+            if (map.mapSize != oldSize)
+                UpdateCalculations();
+
             map.texture2D = (Texture2D)EditorGUILayout.ObjectField("Texture2D:", map.texture2D, typeof(Texture2D), false);
 
             if (map.texture2D == null)
@@ -37,22 +42,25 @@ namespace TileMapEditor
 
             if (map.texture2D != null)
             {
-                var path = AssetDatabase.GetAssetPath(map.texture2D);
-                map.spriteReferences = AssetDatabase.LoadAllAssetsAtPath(path);
-
-                var sprite = (Sprite)map.spriteReferences[1];
-                var width = sprite.textureRect.width;
-                var height = sprite.textureRect.height;
-
-                map.tileSize = new Vector2(width, height);
-                // Calculate pixel to units
-                map.pixelsToUnits = (int)(sprite.rect.width / sprite.bounds.size.x);
-                map.gridSize = new Vector2((width / map.pixelsToUnits) * map.MapSize.x, (height / map.pixelsToUnits) * map.MapSize.y);
-
+                UpdateCalculations();
             }
 
         }
 
+        private void UpdateCalculations()
+        {
+            var path = AssetDatabase.GetAssetPath(map.texture2D);
+            map.spriteReferences = AssetDatabase.LoadAllAssetsAtPath(path);
+
+            var sprite = (Sprite)map.spriteReferences[1];
+            var width = sprite.textureRect.width;
+            var height = sprite.textureRect.height;
+
+            map.tileSize = new Vector2(width, height);
+            // Calculate pixel to units
+            map.pixelsToUnits = (int)(sprite.rect.width / sprite.bounds.size.x);
+            map.gridSize = new Vector2((width / map.pixelsToUnits) * map.mapSize.x, (height / map.pixelsToUnits) * map.mapSize.y);
+        }
 
     }
 }
