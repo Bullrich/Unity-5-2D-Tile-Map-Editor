@@ -11,6 +11,8 @@ namespace TileMapEditor
 
         public TileMap map;
 
+        TileBrush brush;
+
         public override void OnInspectorGUI()
         {
             EditorGUILayout.BeginVertical();
@@ -30,6 +32,7 @@ namespace TileMapEditor
                 EditorGUILayout.LabelField("Tile Size:", map.tileSize.x + "x" + map.tileSize.y);
                 EditorGUILayout.LabelField("Grid Size in Units:", map.gridSize.x + "x" + map.gridSize.y);
                 EditorGUILayout.LabelField("Pixels To Units:", map.pixelsToUnits.ToString());
+                UpdateBrush(map.currentTileBrush);
             }
 
             EditorGUILayout.EndVertical();
@@ -43,8 +46,14 @@ namespace TileMapEditor
             if (map.texture2D != null)
             {
                 UpdateCalculations();
+                NewBrush();
             }
 
+        }
+
+        private void OnDisable()
+        {
+            DestroyBrush();
         }
 
         private void UpdateCalculations()
@@ -60,6 +69,44 @@ namespace TileMapEditor
             // Calculate pixel to units
             map.pixelsToUnits = (int)(sprite.rect.width / sprite.bounds.size.x);
             map.gridSize = new Vector2((width / map.pixelsToUnits) * map.mapSize.x, (height / map.pixelsToUnits) * map.mapSize.y);
+        }
+
+        void CreateBrush()
+        {
+            var sprite = map.currentTileBrush;
+
+            if (sprite != null)
+            {
+                GameObject go = new GameObject("Brush");
+                go.transform.SetParent(map.transform);
+
+                brush = go.AddComponent<TileBrush>();
+                brush.renderer2D = go.AddComponent<SpriteRenderer>();
+
+                var pixelsToUnits = map.pixelsToUnits;
+                brush.brushSize = new Vector2(sprite.textureRect.width / pixelsToUnits, sprite.textureRect.height / pixelsToUnits);
+                brush.UpdateBrush(sprite);
+            }
+        }
+
+        void NewBrush()
+        {
+            if (brush == null)
+            {
+                CreateBrush();
+            }
+        }
+
+        void DestroyBrush()
+        {
+            if (brush != null)
+                DestroyImmediate(brush.gameObject);
+        }
+
+        public void UpdateBrush(Sprite sprite)
+        {
+            if (brush != null)
+                brush.UpdateBrush(sprite);
         }
 
     }

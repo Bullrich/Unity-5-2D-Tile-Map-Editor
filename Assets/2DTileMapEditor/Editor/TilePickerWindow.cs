@@ -62,6 +62,23 @@ namespace TileMapEditor{
 
                     GUI.Box(new Rect(selectionPos.x, selectionPos.y, tile.x, tile.y), "", style);
 
+                    var cEvent = Event.current;
+                    Vector2 mousePos = new Vector2(cEvent.mousePosition.x, cEvent.mousePosition.y);
+                    if (cEvent.type == EventType.mouseDown && cEvent.button == 0)
+                    {
+                        currentSelection.x = Mathf.Floor((mousePos.x + scrollPosition.x) / tile.x);
+                        currentSelection.y = Mathf.Floor((mousePos.y + scrollPosition.y) / tile.y);
+
+                        if (currentSelection.x > grid.x - 1)
+                            currentSelection.x = grid.x - 1;
+                        if (currentSelection.y > grid.y - 1)
+                            currentSelection.y = grid.y - 1;
+
+                        selection.tileID = (int)(currentSelection.x + (currentSelection.y * grid.x) + 1);   
+
+                        Repaint();
+                    }
+
                     GUI.EndScrollView();
                 }
             }
