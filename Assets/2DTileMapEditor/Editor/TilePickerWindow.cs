@@ -49,6 +49,10 @@ namespace TileMapEditor{
                     GUI.DrawTexture(new Rect(offset.x, offset.y, newTextureSize.x, newTextureSize.y), texture2D);
 
                     var tile = selection.tileSize * newScale;
+
+                    tile.x += selection.tilePadding.x * newScale;
+                    tile.y += selection.tilePadding.y * newScale;
+
                     var grid = new Vector2(newTextureSize.x / tile.x, newTextureSize.y / tile.y);
 
                     var selectionPos = new Vector2(tile.x * currentSelection.x + offset.x,
