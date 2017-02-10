@@ -99,8 +99,39 @@ namespace TileMapEditor
                         Draw();
                     else if (current.alt)
                         RemoveTile();
+                    else if (current.control) {
+                        AddColliders(map.tiles);
+                    }
                 }
             }
+        }
+
+        void AddColliders(GameObject parentObj) {
+            foreach (Transform t in parentObj.transform)
+                if(t.GetComponent<PolygonCollider2D>()==null)
+                t.gameObject.AddComponent<PolygonCollider2D>();
+            FuseColliders(parentObj.transform);
+        }
+
+        void FuseColliders(Transform polygonParent) {
+            List<List<Vector2>> containers = new List<List<Vector2>>();
+
+            foreach (Transform t in polygonParent) {
+                if (t.GetComponent<PolygonCollider2D>() != null) {
+                    List<Vector2> points = new List<Vector2>();
+                    foreach (Vector2 vect in t.GetComponent<PolygonCollider2D>().points) {
+                        Vector3 vec = (Vector3)vect + t.position;
+                        points.Add(vec);
+                    }
+                    containers.Add(points);
+                }
+            }
+
+            PolygonConverter polyConverter = new PolygonConverter();
+
+
+            polyConverter.CreateLevelCollider(
+                polyConverter.UniteCollisionPolygons(containers));
         }
 
 
@@ -204,10 +235,10 @@ namespace TileMapEditor
 
             if (tile == null) {
                 tile = new GameObject("tile_" + id);
+                tile.AddComponent<SpriteRenderer>();
                 tile.transform.SetParent(map.tiles.transform);
                 tile.transform.position = new Vector3(posX, posY, 0);
-                tile.AddComponent<SpriteRenderer>();
-                
+
             }
             tile.GetComponent<SpriteRenderer>().sprite = brush.renderer2D.sprite;
         }
