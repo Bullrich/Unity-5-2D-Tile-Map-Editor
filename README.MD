@@ -51,3 +51,12 @@ The controls for drawing are really simple.
 This grid was made after following a [tutorial from Lynda's site](https://www.lynda.com/Unity-tutorials/Unity-5-2D-Building-Tile-Map-Editor/384876-2.html) and then upgraded to save prefabs and add a Polygon Collision 2D using the [free open source Clipper Library](http://www.angusj.com/delphi/clipper.php).
 
 Feel free to use, edit or upgraded it.
+
+---
+
+## Version History
+
+Version | Changelog
+--- | ---
+0.8.0 | Realeased most of the tool working.
+0.8.1 | Fixed the tool adding a SnapToGridd component to the collider.
