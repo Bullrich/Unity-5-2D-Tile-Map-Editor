@@ -10,12 +10,26 @@ using Paths = System.Collections.Generic.List<System.Collections.Generic.List<Cl
 
 namespace TileMapEditor {
 	public class PolygonConverter : MonoBehaviour {
-
+        GameObject colliderObj;
+        //LayerMask collision;
         //this function takes a list of polygons as a parameter, this list of polygons represent all the polygons that constitute collision in your level.
-        public List<List<Vector2>> UniteCollisionPolygons(List<List<Vector2>> polygons) {
+        public List<List<Vector2>> UniteCollisionPolygons(List<List<Vector2>> polygons, Transform spawnPoint, int coll) {
             //this is going to be the result of the method
             List<List<Vector2>> unitedPolygons = new List<List<Vector2>>();
             Clipper clipper = new Clipper();
+            string objName = spawnPoint.gameObject.name + "Collider";
+            if (spawnPoint.FindChild(objName) != null) {
+                {
+                    colliderObj = spawnPoint.FindChild(objName).gameObject;
+                    print(colliderObj.name);
+                    DestroyImmediate(colliderObj.GetComponent<PolygonCollider2D>());
+                }
+            } else
+                colliderObj = new GameObject(objName);
+            colliderObj.transform.SetParent(spawnPoint);
+            colliderObj.transform.position = spawnPoint.transform.position;
+            colliderObj.layer = coll;
+            //print(colliderObj.transform.localPosition);
 
             //clipper only works with ints, so if we're working with floats, we need to multiply all our floats by
             //a scaling factor, and when we're done, divide by the same scaling factor again
@@ -64,8 +78,6 @@ namespace TileMapEditor {
 
         //create the collider in unity from the list of polygons
         public void CreateLevelCollider(List<List<Vector2>> polygons) {
-            GameObject colliderObj = new GameObject("LevelCollision");
-            //colliderObj.layer = GR.inst.GetLayerID(Layer.PLATFORM);
             //colliderObj.transform.SetParent(level.levelObj.transform);
 
             PolygonCollider2D collider = colliderObj.AddComponent<PolygonCollider2D>();

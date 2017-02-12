@@ -13,6 +13,7 @@ namespace TileMapEditor
 
         TileBrush brush;
         Vector3 mouseHitPos;
+        string mapName;
 
         bool mouseOnMap
         {
@@ -51,13 +52,43 @@ namespace TileMapEditor
                 EditorGUILayout.LabelField("Grid Size in Units:", map.gridSize.x + "x" + map.gridSize.y);
                 EditorGUILayout.LabelField("Pixels To Units:", map.pixelsToUnits.ToString());
                 UpdateBrush(map.currentTileBrush);
+                //map.collisionLayer = EditorTools.LayerMaskField("Mask", map.collisionLayer);
+                EditorGUILayout.Space();
+                map.collisionLayer = EditorGUILayout.IntField("Layer " + LayerMask.LayerToName(map.collisionLayer), map.collisionLayer);
+                if (map.collisionLayer > 31) map.collisionLayer = 31; else if (map.collisionLayer < 0) map.collisionLayer = 0;
+                EditorGUILayout.LabelField(LayerMask.LayerToName(map.collisionLayer));
+                mapName = EditorGUILayout.TextField("Map name: ", mapName);
 
                 if (GUILayout.Button("Clear Tiles"))
                     if (EditorUtility.DisplayDialog("Clear map's tiles?", "Are you sure?", "Clear", "Do not clear"))
                         ClearMap();
+                if(GUILayout.Button("Create Colliders"))
+                    if(map.tiles != null)
+                        AddColliders(map.tiles);
+                if (GUILayout.Button("Create Prefab"))
+                    if (!IsNullOrWhiteSpace(mapName)) {
+                        if (EditorUtility.DisplayDialog("Save map", "Do you want to save this map as " + mapName + ".prefab?\n If a prefab with the same name is found it will be overwritten.", "Yes", "No")) {
+                            map.tiles.name = mapName;
+                            EditorTools.CreatePrefab(map.tiles);
+                        }
+                    } else {
+                        EditorUtility.DisplayDialog("Name missing", "You have to set a name to the map to save it", "Ok");
+                        Debug.Log("Called");
+                    }
             }
 
             EditorGUILayout.EndVertical();
+        }
+
+        public static bool IsNullOrWhiteSpace(string value) {
+            if (value != null) {
+                for (int i = 0; i < value.Length; i++) {
+                    if (!char.IsWhiteSpace(value[i])) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         private void OnEnable()
@@ -100,7 +131,7 @@ namespace TileMapEditor
                     else if (current.alt)
                         RemoveTile();
                     else if (current.control) {
-                        AddColliders(map.tiles);
+                        //AddColliders(map.tiles);
                     }
                 }
             }
@@ -120,9 +151,10 @@ namespace TileMapEditor
                 if (t.GetComponent<PolygonCollider2D>() != null) {
                     List<Vector2> points = new List<Vector2>();
                     foreach (Vector2 vect in t.GetComponent<PolygonCollider2D>().points) {
-                        Vector3 vec = (Vector3)vect + t.position;
+                        Vector3 vec = ((Vector3)vect + t.position) - polygonParent.transform.position;
                         points.Add(vec);
                     }
+                    DestroyImmediate(t.GetComponent<PolygonCollider2D>());
                     containers.Add(points);
                 }
             }
@@ -131,7 +163,8 @@ namespace TileMapEditor
 
 
             polyConverter.CreateLevelCollider(
-                polyConverter.UniteCollisionPolygons(containers));
+                polyConverter.UniteCollisionPolygons(
+                    containers, polygonParent, map.collisionLayer));
         }
 
 
@@ -231,7 +264,9 @@ namespace TileMapEditor
             var posX = brush.transform.position.x;
             var posY = brush.transform.position.y;
 
-            GameObject tile = GameObject.Find(map.name + "/Tiles/tile_" + id);
+            GameObject tile = GameObject.Find(map.name + "/"+ map.tiles.name + "/tile_" + id);
+            //Debug.Log(map.tiles);
+            //GameObject tile = map.tiles.transform.FindChild(map.name + "tile_" + id).gameObject;
 
             if (tile == null) {
                 tile = new GameObject("tile_" + id);

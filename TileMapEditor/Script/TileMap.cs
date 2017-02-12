@@ -16,6 +16,8 @@ namespace TileMapEditor
         public int pixelsToUnits = 100;
         public int tileID = 0;
         public GameObject tiles;
+        public int spriteLayer = 0;
+        public int collisionLayer;
 
         public Sprite currentTileBrush
         {
