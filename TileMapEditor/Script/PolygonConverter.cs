@@ -26,9 +26,23 @@ namespace TileMapEditor {
                 }
             } else
                 colliderObj = new GameObject(objName);
+
+            int pixelsToUnits = 100;
+            foreach (Transform t in spawnPoint) {
+                if(t.GetComponent<SpriteRenderer>()!=null) {
+                    Sprite sprite = t.GetComponent<SpriteRenderer>().sprite;
+                    pixelsToUnits = (int)(sprite.rect.width / sprite.bounds.size.x);
+                    print(pixelsToUnits);
+                    break;
+                }
+            }
+
             colliderObj.transform.SetParent(spawnPoint);
             colliderObj.transform.position = spawnPoint.transform.position;
             colliderObj.layer = coll;
+            SnapToGrid snap= colliderObj.AddComponent<SnapToGrid>();
+            snap.cell_size = (float)(100f / pixelsToUnits);
+            Debug.Log(snap.cell_size);
             //print(colliderObj.transform.localPosition);
 
             //clipper only works with ints, so if we're working with floats, we need to multiply all our floats by

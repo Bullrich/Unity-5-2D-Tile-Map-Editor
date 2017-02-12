@@ -9,6 +9,7 @@ public class EditorTools {
     static List<string> layers;
     static string[] layerNames;
 
+    // not working
     public static LayerMask LayerMaskField(string label, LayerMask layerMask) {
         List<string> layers = new List<string>();
         List<int> layerNumbers = new List<int>();
