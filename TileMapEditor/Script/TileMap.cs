@@ -18,6 +18,7 @@ namespace TileMapEditor
         public GameObject tiles;
         public int spriteLayer = 0;
         public int collisionLayer;
+        public string mapName = "Tilemap";
 
         public Sprite currentTileBrush
         {

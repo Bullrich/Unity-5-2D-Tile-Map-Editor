@@ -13,7 +13,6 @@ namespace TileMapEditor
 
         TileBrush brush;
         Vector3 mouseHitPos;
-        string mapName;
 
         bool mouseOnMap
         {
@@ -54,10 +53,16 @@ namespace TileMapEditor
                 UpdateBrush(map.currentTileBrush);
 
                 EditorGUILayout.Space();
-                map.collisionLayer = EditorGUILayout.IntField("Layer " + LayerMask.LayerToName(map.collisionLayer), map.collisionLayer);
-                if (map.collisionLayer > 31) map.collisionLayer = 31; else if (map.collisionLayer < 0) map.collisionLayer = 0;
-                //EditorGUILayout.LabelField(LayerMask.LayerToName(map.collisionLayer));
-                mapName = EditorGUILayout.TextField("Map name: ", mapName);
+                //map.collisionLayer = EditorGUILayout.IntField("Layer " + LayerMask.LayerToName(map.collisionLayer), map.collisionLayer);
+                //if (map.collisionLayer > 31) map.collisionLayer = 31; else if (map.collisionLayer < 0) map.collisionLayer = 0;
+
+                EditorGUILayout.BeginHorizontal("Horizontal");
+                EditorGUILayout.LabelField((LayerMask.LayerToName(map.collisionLayer) != "" ? LayerMask.LayerToName(map.collisionLayer) : "Invalid layer"));
+                map.collisionLayer=EditorGUILayout.IntSlider(map.collisionLayer, 0, 31);
+                EditorGUILayout.EndHorizontal();
+
+                map.mapName = EditorGUILayout.TextField("Map name: ", map.mapName);
+                EditorGUILayout.LabelField("id "+ brush.tileID);
 
                 if (GUILayout.Button("Clear Tiles"))
                     if (EditorUtility.DisplayDialog("Clear map's tiles?", "Are you sure?", "Clear", "Do not clear"))
@@ -68,9 +73,9 @@ namespace TileMapEditor
                     if(map.tiles != null)
                         AddColliders(map.tiles);
                 if (GUILayout.Button("Create Prefab"))
-                    if (!IsNullOrWhiteSpace(mapName)) {
-                        if (EditorUtility.DisplayDialog("Save map", "Do you want to save this map as " + mapName + ".prefab?\n If a prefab with the same name is found it will be overwritten.", "Yes", "No")) {
-                            map.tiles.name = mapName;
+                    if (!IsNullOrWhiteSpace(map.mapName)) {
+                        if (EditorUtility.DisplayDialog("Save map", "Do you want to save this map as " + map.mapName + ".prefab?\n If a prefab with the same name is found it will be overwritten.", "Yes", "No")) {
+                            map.tiles.name = map.mapName;
                             CreatePrefab(map.tiles);
                         }
                     } else {
@@ -290,14 +295,15 @@ namespace TileMapEditor
                 tile.transform.SetParent(map.tiles.transform);
                 tile.transform.position = new Vector3(posX, posY, 0);
 
-            }
+            } else
+                Debug.Log(tile.name);
             tile.GetComponent<SpriteRenderer>().sprite = brush.renderer2D.sprite;
         }
 
         void RemoveTile() {
             var id = brush.tileID.ToString();
 
-            GameObject tile = GameObject.Find(map.name + "/Tiles/tile_" + id);
+            GameObject tile = GameObject.Find(map.name + "/" + map.tiles.name + "/tile_" + id);
 
             if (tile != null)
                 DestroyImmediate(tile);
