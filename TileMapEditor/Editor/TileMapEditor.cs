@@ -29,8 +29,13 @@ namespace TileMapEditor
 
             var oldSize = map.mapSize;
             map.mapSize=EditorGUILayout.Vector2Field("Map Size:", map.mapSize);
+
+            // Transform the vector floats into ints
+            map.mapSize = new Vector2(Mathf.Round(map.mapSize.x), Mathf.Round(map.mapSize.y));
+
             if (map.mapSize != oldSize)
                 UpdateCalculations();
+
 
             var oldTexture = map.texture2D;
             map.texture2D = (Texture2D)EditorGUILayout.ObjectField("Texture2D:", map.texture2D, typeof(Texture2D), false);
@@ -102,13 +107,11 @@ namespace TileMapEditor
         }
 
         public static bool IsNullOrWhiteSpace(string value) {
-            if (value != null) {
-                for (int i = 0; i < value.Length; i++) {
-                    if (!char.IsWhiteSpace(value[i])) {
+            if (value != null)
+                for (int i = 0; i < value.Length; i++)
+                    if (!char.IsWhiteSpace(value[i]))
                         return false;
-                    }
-                }
-            }
+
             return true;
         }
 
@@ -151,9 +154,6 @@ namespace TileMapEditor
                         Draw();
                     else if (current.alt)
                         RemoveTile();
-                    else if (current.control) {
-                        //AddColliders(map.tiles);
-                    }
                 }
             }
         }
@@ -199,6 +199,7 @@ namespace TileMapEditor
             var height = sprite.textureRect.height;
 
             map.tileSize = new Vector2(width, height);
+    
             // Calculate pixel to units
             map.pixelsToUnits = (int)(sprite.rect.width / sprite.bounds.size.x);
             map.gridSize = new Vector2((width / map.pixelsToUnits) * map.mapSize.x, (height / map.pixelsToUnits) * map.mapSize.y);
@@ -254,6 +255,8 @@ namespace TileMapEditor
                 hit = ray.origin + ray.direction.normalized * dist;
 
             mouseHitPos = map.transform.InverseTransformPoint(hit);
+
+            //Debug.Log(mouseHitPos.ToString());
         }
 
         void MoveBrush()
@@ -269,7 +272,8 @@ namespace TileMapEditor
             if (!mouseOnMap)
                 return;
 
-            var id = (int)((column * map.mapSize.x) + row);
+            int id = Mathf.RoundToInt((column * map.mapSize.x) + row);
+            Debug.Log("id " + id + " note formated id " + ((column * map.mapSize.x) + row));
 
             brush.tileID = id;
 
