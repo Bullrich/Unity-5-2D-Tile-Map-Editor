@@ -23,8 +23,8 @@ namespace TileMapEditor {
 
         public GameObject tileContainer;
         public string mapName = "Tilemap";
-        
-        public Dictionary<Vector2, GameObject> tiles = new Dictionary<Vector2, GameObject>();
+
+        public List<Tile> tiles;
 
         public Sprite currentTileBrush {
             get { return spriteReferences[tileID] as Sprite; }
@@ -61,5 +61,21 @@ namespace TileMapEditor {
             }
         }
 
+    }
+
+    [System.Serializable]
+    public class Tile {
+        public Vector2 position;
+        public GameObject tile;
+
+        public Tile(Vector2 pos, GameObject til) {
+            position = pos;
+            tile = til;
+        }
+
+        public void Update(Vector2 pos, GameObject til) {
+            position = pos;
+            tile = til;
+        }
     }
 }

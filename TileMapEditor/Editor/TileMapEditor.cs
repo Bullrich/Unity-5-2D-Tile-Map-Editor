@@ -25,6 +25,8 @@ namespace TileMapEditor
 
         public override void OnInspectorGUI()
         {
+            if (map.tiles == null)
+                map.tiles = new List<Tile>();
             EditorGUILayout.BeginVertical();
 
             var oldSize = map.mapSize;
@@ -44,16 +46,6 @@ namespace TileMapEditor
                 UpdateCalculations();
                 map.tileID = 1;
                 CreateBrush();
-                /*foreach(KeyValuePair<Vector2, GameObject> pair in map.tiles) {
-                    if(pair.Key.x > map.mapSize.x) {
-                        DestroyImmediate(map.tiles[pair.Key]);
-                        map.tiles.Remove(pair.Key);
-                    }
-                    else if (pair.Key.y > map.mapSize.y) {
-                        DestroyImmediate(map.tiles[pair.Key]);
-                        map.tiles.Remove(pair.Key);
-                    }
-                }*/
             }
 
             if (map.texture2D == null)
@@ -75,7 +67,7 @@ namespace TileMapEditor
                 EditorGUILayout.EndHorizontal();
 
                 map.mapName = EditorGUILayout.TextField("Map name: ", map.mapName);
-                EditorGUILayout.LabelField("id "+ brush.tileID);
+                EditorGUILayout.LabelField("COUNT: "+ map.tiles.Count);
 
                 if (GUILayout.Button("Clear Tiles"))
                     if (EditorUtility.DisplayDialog("Clear map's tiles?", "Are you sure?", "Clear", "Do not clear"))
@@ -235,7 +227,10 @@ namespace TileMapEditor
         {
             if (brush == null)
             {
-                CreateBrush();
+                if (GameObject.Find("Brush") != null)
+                    brush = map.transform.FindChild("Brush").GetComponent<TileBrush>();
+                else
+                    CreateBrush();
             }
         }
 
@@ -301,16 +296,23 @@ namespace TileMapEditor
 
             GameObject tile;// = GameObject.Find(map.name + "/"+ map.tileContainer.name + "/tile_" + id);
 
-            if (!map.tiles.ContainsKey(brush.brushPosition)) {
+            int index = -1;
+
+            if (!MapContainTile(brush.brushPosition)) {
                 tile = new GameObject("tile_" + brush.brushPosition.x + "_" + brush.brushPosition.y);
                 tile.AddComponent<SpriteRenderer>();
                 tile.transform.SetParent(map.tileContainer.transform);
                 tile.transform.position = new Vector3(posX, posY, 0);
-            } else
-                tile = map.tiles[brush.brushPosition];
+            } else {
+                index = GetTileIndex(brush.brushPosition);
+                tile = map.tiles[index].tile;
+            }
 
             tile.GetComponent<SpriteRenderer>().sprite = brush.renderer2D.sprite;
-            map.tiles[brush.brushPosition] = tile;
+            if (index > -1)
+                map.tiles[GetTileIndex(brush.brushPosition)].tile = tile;
+            else
+                map.tiles.Add(new Tile(brush.brushPosition, tile));
         }
 
         void RemoveTile() {
@@ -318,9 +320,14 @@ namespace TileMapEditor
 
             //GameObject tile = GameObject.Find(map.name + "/" + map.tileContainer.name + "/tile_" + id);
 
-            if (map.tiles.ContainsKey(brush.brushPosition)) {
+            /*if (map.tiles.ContainsKey(brush.brushPosition)) {
                 DestroyImmediate(map.tiles[brush.brushPosition]);
                 map.tiles.Remove(brush.brushPosition);
+            }*/
+
+            if (MapContainTile(brush.brushPosition)) {
+                DestroyImmediate(map.tiles[GetTileIndex(brush.brushPosition)].tile);
+                map.tiles.RemoveAt(GetTileIndex(brush.brushPosition));
             }
         }
 
@@ -331,6 +338,22 @@ namespace TileMapEditor
                 i--;
                 map.tiles.Clear();
             }
+        }
+
+        public bool MapContainTile(Vector2 tilePos) {
+            foreach (Tile tile in map.tiles)
+                if (tile.position == tilePos)
+                    return true;
+            return false;
+        }
+
+        public int GetTileIndex(Vector2 tilePos) {
+            for (int i = 0; i < map.tiles.Count; i++) {
+                if (map.tiles[i].position == tilePos)
+                    return i;
+            }
+            Debug.LogError("The index of the tile " + tilePos + " was not found!");
+            return 0;
         }
     }
 }
