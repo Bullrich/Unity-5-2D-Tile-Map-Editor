@@ -10,6 +10,7 @@ namespace TileMapEditor
         public Vector2 brushSize = Vector2.zero;
         public int tileID = 0;
         public SpriteRenderer renderer2D;
+        public Vector2 brushPosition;
 
         private void OnDrawGizmosSelected()
         {

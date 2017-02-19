@@ -44,6 +44,16 @@ namespace TileMapEditor
                 UpdateCalculations();
                 map.tileID = 1;
                 CreateBrush();
+                /*foreach(KeyValuePair<Vector2, GameObject> pair in map.tiles) {
+                    if(pair.Key.x > map.mapSize.x) {
+                        DestroyImmediate(map.tiles[pair.Key]);
+                        map.tiles.Remove(pair.Key);
+                    }
+                    else if (pair.Key.y > map.mapSize.y) {
+                        DestroyImmediate(map.tiles[pair.Key]);
+                        map.tiles.Remove(pair.Key);
+                    }
+                }*/
             }
 
             if (map.texture2D == null)
@@ -58,8 +68,6 @@ namespace TileMapEditor
                 UpdateBrush(map.currentTileBrush);
 
                 EditorGUILayout.Space();
-                //map.collisionLayer = EditorGUILayout.IntField("Layer " + LayerMask.LayerToName(map.collisionLayer), map.collisionLayer);
-                //if (map.collisionLayer > 31) map.collisionLayer = 31; else if (map.collisionLayer < 0) map.collisionLayer = 0;
 
                 EditorGUILayout.BeginHorizontal("Horizontal");
                 EditorGUILayout.LabelField((LayerMask.LayerToName(map.collisionLayer) != "" ? LayerMask.LayerToName(map.collisionLayer) : "Invalid layer"));
@@ -75,13 +83,13 @@ namespace TileMapEditor
 
                 EditorGUILayout.BeginHorizontal("Horizontal");
                 if(GUILayout.Button("Create Colliders"))
-                    if(map.tiles != null)
-                        AddColliders(map.tiles);
+                    if(map.tileContainer != null)
+                        AddColliders(map.tileContainer);
                 if (GUILayout.Button("Create Prefab"))
                     if (!IsNullOrWhiteSpace(map.mapName)) {
                         if (EditorUtility.DisplayDialog("Save map", "Do you want to save this map as " + map.mapName + ".prefab?\n If a prefab with the same name is found it will be overwritten.", "Yes", "No")) {
-                            map.tiles.name = map.mapName;
-                            CreatePrefab(map.tiles);
+                            map.tileContainer.name = map.mapName;
+                            CreatePrefab(map.tileContainer);
                         }
                     } else {
                         EditorUtility.DisplayDialog("Name missing", "You have to set a name to the map to save it", "Ok");
@@ -98,12 +106,12 @@ namespace TileMapEditor
         private void CreatePrefab(GameObject prefabOb) {
             SnapToGrid snap;
             if (prefabOb.GetComponent<SnapToGrid>() == null)
-                snap = map.tiles.AddComponent<SnapToGrid>();
+                snap = map.tileContainer.AddComponent<SnapToGrid>();
             else
-                snap = map.tiles.GetComponent<SnapToGrid>();
+                snap = map.tileContainer.GetComponent<SnapToGrid>();
             snap.cell_size = (float)(100f / map.pixelsToUnits);
 
-            EditorTools.CreatePrefab(map.tiles);
+            EditorTools.CreatePrefab(map.tileContainer);
         }
 
         public static bool IsNullOrWhiteSpace(string value) {
@@ -120,12 +128,12 @@ namespace TileMapEditor
             map = target as TileMap;
             Tools.current = Tool.View;
 
-            if (map.tiles == null) {
+            if (map.tileContainer == null) {
                 var go = new GameObject("Tiles");
                 go.transform.SetParent(map.transform);
                 go.transform.position = Vector2.zero;
 
-                map.tiles = go;
+                map.tileContainer = go;
             }
 
             if (map.texture2D != null)
@@ -273,7 +281,6 @@ namespace TileMapEditor
                 return;
 
             int id = Mathf.RoundToInt((column * map.mapSize.x) + row);
-            Debug.Log("id " + id + " note formated id " + ((column * map.mapSize.x) + row));
 
             brush.tileID = id;
 
@@ -281,6 +288,9 @@ namespace TileMapEditor
             y += map.transform.position.y + tileSize / 2;
 
             brush.transform.position = new Vector3(x, y, map.transform.position.z);
+            brush.brushPosition = new Vector2(row, column);
+
+            //Debug.Log("x " + row + " y " + column);
         }
 
         void Draw() {
@@ -289,36 +299,37 @@ namespace TileMapEditor
             var posX = brush.transform.position.x;
             var posY = brush.transform.position.y;
 
-            GameObject tile = GameObject.Find(map.name + "/"+ map.tiles.name + "/tile_" + id);
-            //Debug.Log(map.tiles);
-            //GameObject tile = map.tiles.transform.FindChild(map.name + "tile_" + id).gameObject;
+            GameObject tile;// = GameObject.Find(map.name + "/"+ map.tileContainer.name + "/tile_" + id);
 
-            if (tile == null) {
-                tile = new GameObject("tile_" + id);
+            if (!map.tiles.ContainsKey(brush.brushPosition)) {
+                tile = new GameObject("tile_" + brush.brushPosition.x + "_" + brush.brushPosition.y);
                 tile.AddComponent<SpriteRenderer>();
-                tile.transform.SetParent(map.tiles.transform);
+                tile.transform.SetParent(map.tileContainer.transform);
                 tile.transform.position = new Vector3(posX, posY, 0);
-
             } else
-                Debug.Log(tile.name);
+                tile = map.tiles[brush.brushPosition];
+
             tile.GetComponent<SpriteRenderer>().sprite = brush.renderer2D.sprite;
+            map.tiles[brush.brushPosition] = tile;
         }
 
         void RemoveTile() {
             var id = brush.tileID.ToString();
 
-            GameObject tile = GameObject.Find(map.name + "/" + map.tiles.name + "/tile_" + id);
+            //GameObject tile = GameObject.Find(map.name + "/" + map.tileContainer.name + "/tile_" + id);
 
-            if (tile != null)
-                DestroyImmediate(tile);
+            if (map.tiles.ContainsKey(brush.brushPosition)) {
+                DestroyImmediate(map.tiles[brush.brushPosition]);
+                map.tiles.Remove(brush.brushPosition);
+            }
         }
 
         void ClearMap() {
-            for (int i = 0; i < map.tiles.transform.childCount; i++) {
-                Transform t = map.tiles.transform.GetChild(i);
+            for (int i = 0; i < map.tileContainer.transform.childCount; i++) {
+                Transform t = map.tileContainer.transform.GetChild(i);
                 DestroyImmediate(t.gameObject);
                 i--;
-
+                map.tiles.Clear();
             }
         }
     }
