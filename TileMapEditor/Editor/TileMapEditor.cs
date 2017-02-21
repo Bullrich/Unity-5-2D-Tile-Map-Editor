@@ -13,6 +13,7 @@ namespace TileMapEditor
 
         TileBrush brush;
         Vector3 mouseHitPos;
+        Map loadMap;
 
         bool mouseOnMap
         {
@@ -50,7 +51,19 @@ namespace TileMapEditor
 
             if (map.texture2D == null)
             {
-                EditorGUILayout.HelpBox("You have not selected a texture 2D yet.", MessageType.Warning);
+                EditorGUILayout.HelpBox("You have not selected a texture 2D yet.\nSelect a texture or load a map", MessageType.Warning);
+
+                EditorGUILayout.LabelField("Load map");
+                loadMap = (Map)EditorGUILayout.ObjectField("Load map", loadMap, typeof(Map), false);
+
+                if (loadMap != null) {
+                    Debug.Log("A map is loaded");
+                    map.texture2D = loadMap.texture;
+                    map.tilePadding = loadMap.tilePadding;
+                    map.gridSize = loadMap.mapSize;
+
+                    ClearMap();
+                }
             } else
             {
                 EditorGUILayout.LabelField("Tile Size:", map.tileSize.x + "x" + map.tileSize.y);
@@ -90,6 +103,20 @@ namespace TileMapEditor
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.HelpBox("SHIFT TO ADD TILES \nALT TO DELETE THEM", MessageType.Info);
+
+                if (loadMap != null) {
+
+                    foreach (Tile tile in loadMap.tiles) {
+                        brush.brushPosition = tile.position;
+                        var tileSize = map.tileSize.x / map.pixelsToUnits;
+                        var x = map.transform.position.x + tileSize / 2;
+                        var y = map.transform.position.y + tileSize / 2;
+                        Debug.Log(x + " " + y);
+                        Draw();
+                    }
+
+                    loadMap = null;
+                }
             }
 
             EditorGUILayout.EndVertical();
@@ -98,10 +125,20 @@ namespace TileMapEditor
         private void CreatePrefab(GameObject prefabOb) {
             SnapToGrid snap;
             if (prefabOb.GetComponent<SnapToGrid>() == null)
-                snap = map.tileContainer.AddComponent<SnapToGrid>();
+                snap = prefabOb.AddComponent<SnapToGrid>();
             else
-                snap = map.tileContainer.GetComponent<SnapToGrid>();
+                snap = prefabOb.GetComponent<SnapToGrid>();
+            Map mapValues;
+            if (prefabOb.GetComponent<Map>() == null)
+                prefabOb.AddComponent<Map>();
+            mapValues = prefabOb.GetComponent<Map>();
+            mapValues.tiles = map.tiles.ToArray();
+            mapValues.texture = map.texture2D;
+            mapValues.tilePadding = map.tilePadding;
+            mapValues.mapSize = map.gridSize;
+
             snap.cell_size = (float)(100f / map.pixelsToUnits);
+            snap.enabled = false;
 
             EditorTools.CreatePrefab(map.tileContainer);
         }
@@ -258,8 +295,6 @@ namespace TileMapEditor
                 hit = ray.origin + ray.direction.normalized * dist;
 
             mouseHitPos = map.transform.InverseTransformPoint(hit);
-
-            //Debug.Log(mouseHitPos.ToString());
         }
 
         void MoveBrush()
@@ -284,8 +319,6 @@ namespace TileMapEditor
 
             brush.transform.position = new Vector3(x, y, map.transform.position.z);
             brush.brushPosition = new Vector2(row, column);
-
-            //Debug.Log("x " + row + " y " + column);
         }
 
         void Draw() {
@@ -294,7 +327,7 @@ namespace TileMapEditor
             var posX = brush.transform.position.x;
             var posY = brush.transform.position.y;
 
-            GameObject tile;// = GameObject.Find(map.name + "/"+ map.tileContainer.name + "/tile_" + id);
+            GameObject tile;
 
             int index = -1;
 
@@ -317,13 +350,6 @@ namespace TileMapEditor
 
         void RemoveTile() {
             var id = brush.tileID.ToString();
-
-            //GameObject tile = GameObject.Find(map.name + "/" + map.tileContainer.name + "/tile_" + id);
-
-            /*if (map.tiles.ContainsKey(brush.brushPosition)) {
-                DestroyImmediate(map.tiles[brush.brushPosition]);
-                map.tiles.Remove(brush.brushPosition);
-            }*/
 
             if (MapContainTile(brush.brushPosition)) {
                 DestroyImmediate(map.tiles[GetTileIndex(brush.brushPosition)].tile);
