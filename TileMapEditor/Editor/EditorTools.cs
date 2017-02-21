@@ -38,9 +38,10 @@ public class EditorTools {
     public static void CreatePrefab(GameObject prefab) {
         // Create some asset folders.
         AssetDatabase.CreateFolder("Assets/Meshes", "MyMeshes");
-        AssetDatabase.CreateFolder("Assets/Prefabs", "MyPrefabs");
+        string mapPath = AssetDatabase.CreateFolder("Assets", "Maps");
+		string newFolderPath = AssetDatabase.GUIDToAssetPath (mapPath);
         // The paths to the mesh/prefab assets.
-        string prefabPath = "Assets/2D Tile Map Editor/TileMapEditor/Maps/" + prefab.name + ".prefab";
+		string prefabPath = newFolderPath + prefab.name + ".prefab";
 
         //AssetDatabase.DeleteAsset(prefabPath);
         AssetDatabase.SaveAssets();
