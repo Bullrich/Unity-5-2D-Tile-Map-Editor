@@ -80,6 +80,9 @@ namespace TileMapEditor {
                 EditorGUILayout.LabelField("Pixels To Units:", map.pixelsToUnits.ToString());
                 if (!getBrController().BrushExists())
                     getBrController().CreateBrush(map);
+
+                getBrController().RandomTile(map.randomTile);
+
                 getBrController().UpdateBrush(map.currentTileBrush);
 
                 EditorGUILayout.Space();
@@ -88,6 +91,8 @@ namespace TileMapEditor {
                 EditorGUILayout.LabelField((LayerMask.LayerToName(map.collisionLayer) != "" ? LayerMask.LayerToName(map.collisionLayer) : "Invalid layer"));
                 map.collisionLayer = EditorGUILayout.IntSlider(map.collisionLayer, 0, 31);
                 EditorGUILayout.EndHorizontal();
+
+                map.randomTile = EditorGUILayout.Toggle("Random Tile", map.randomTile);
 
                 map.mapName = EditorGUILayout.TextField("Map name: ", map.mapName);
                 EditorGUILayout.LabelField("COUNT: " + map.tiles.Count);
@@ -269,8 +274,13 @@ namespace TileMapEditor {
                 index = GetTileIndex(brPos);
                 tile = map.tiles[index].tile;
             }
+            Sprite tileSprite;
+            if (map.randomTile)
+                tileSprite = map.spriteReferences[UnityEngine.Random.Range(1, map.spriteReferences.Length)] as Sprite;
 
-            tile.GetComponent<SpriteRenderer>().sprite = getBrController().getRenderer2D();
+            else
+                tileSprite = getBrController().getRenderer2D();
+            tile.GetComponent<SpriteRenderer>().sprite = tileSprite;
 
             if (index > -1)
                 map.tiles[GetTileIndex(brPos)].tile = tile;

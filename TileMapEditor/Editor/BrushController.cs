@@ -30,6 +30,13 @@ namespace TileMapEditor {
             }
         }
 
+        public void RandomTile(bool random) {
+            if (random)
+                brush.renderer2D.color = new Color(1f, 1f, 1f, .5f);
+            else
+                brush.renderer2D.color = new Color(1f, 1f, 1f, 1f);
+        }
+
         public bool BrushExists() {
             return (brush != null);
         }

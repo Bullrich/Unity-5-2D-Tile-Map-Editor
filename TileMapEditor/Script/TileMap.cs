@@ -24,6 +24,8 @@ namespace TileMapEditor {
         public GameObject tileContainer;
         public string mapName = "Tilemap";
 
+        public bool randomTile;
+
         public List<Tile> tiles;
 
         public Sprite currentTileBrush {
