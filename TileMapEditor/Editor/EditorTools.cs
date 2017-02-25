@@ -38,10 +38,13 @@ public class EditorTools {
     public static void CreatePrefab(GameObject prefab) {
         // Create some asset folders.
         AssetDatabase.CreateFolder("Assets/Meshes", "MyMeshes");
-        string mapPath = AssetDatabase.CreateFolder("Assets", "Maps");
-		string newFolderPath = AssetDatabase.GUIDToAssetPath (mapPath);
+        string mapPath = "Assets/Maps";
+        if (!AssetDatabase.IsValidFolder(mapPath)) {
+            mapPath = AssetDatabase.CreateFolder("Assets", "Maps");
+            mapPath = AssetDatabase.GUIDToAssetPath(mapPath);
+        }
         // The paths to the mesh/prefab assets.
-		string prefabPath = newFolderPath + prefab.name + ".prefab";
+		string prefabPath = mapPath + "/" + prefab.name + ".prefab";
 
         //AssetDatabase.DeleteAsset(prefabPath);
         AssetDatabase.SaveAssets();
