@@ -4,6 +4,8 @@
 
 This asset is a simple Tile Map Editor.
 
+![Tile map gif](https://zippy.gfycat.com/ReflectingHandyAlleycat.gif)
+
 It's features are:
 - Setting a grid of desired size.
 - Padding the tiles with the wished padding size.
@@ -34,6 +36,8 @@ Clear Tiles | Delete all the tiles in the scene.
 Create Collider | Creates a big PolygonCollider2D taking all the sprites in the map (experimental).
 Create Prefab | Creates a prefab in TileMapEditor/Maps
 
+Else, if you wish to continue work on a saved map, you can drag a map with the script Map.cs to the LoadMap section, the system will reload that map so you can continue your work where you left.
+
 #### Tile Picker
 
 The tile picker window will show the selected sprite. If it doesn't show anything click on it, focusing again should reload the window.
@@ -60,3 +64,4 @@ Version | Changelog
 --- | ---
 0.8.0 | Realeased most of the tool working.
 0.8.1 | Fixed the tool adding a SnapToGridd component to the collider.
+0.9 | Added the ability to reload saved maps.
