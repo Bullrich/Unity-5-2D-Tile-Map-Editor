@@ -93,6 +93,7 @@ namespace TileMapEditor {
                 EditorGUILayout.EndHorizontal();
 
                 map.randomTile = EditorGUILayout.Toggle("Random Tile", map.randomTile);
+                map.spriteLayer = EditorGUILayout.IntField("Sprite Layer", map.spriteLayer);
 
                 map.mapName = EditorGUILayout.TextField("Map name: ", map.mapName);
                 EditorGUILayout.LabelField("COUNT: " + map.tiles.Count);
@@ -300,6 +301,7 @@ namespace TileMapEditor {
         GameObject createTile(Vector3 tilePos, Vector2 tileIndex) {
             GameObject tile = new GameObject("tile_" + tileIndex.x + "_" + tileIndex.y);
             tile.AddComponent<SpriteRenderer>();
+            tile.GetComponent<SpriteRenderer>().sortingOrder = map.spriteLayer;
             tile.transform.SetParent(map.tileContainer.transform);
             tile.transform.position = tilePos;
             return tile;

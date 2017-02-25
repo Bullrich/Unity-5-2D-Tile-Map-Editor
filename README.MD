@@ -31,6 +31,8 @@ Tile Padding | Allows you to add a custom padding.
 Grid Size in Units | It shows the size of the whole grid in Unity units.
 Pixels to Unitys | It shows the [pixel to units](https://docs.unity3d.com/ScriptReference/Sprite-pixelsPerUnit.html) value of the selected sprite.
 Layer | It let you select the layer mask to create the collider.
+Random Tile | If checked, when you paint a tile it will paint a random one.
+Sprite Layer | Decides on what sorting layer of the default layer the SpriteRenderer will be set.
 Map name | Name of the map at the time of saving.
 Clear Tiles | Delete all the tiles in the scene.
 Create Collider | Creates a big PolygonCollider2D taking all the sprites in the map (experimental).
@@ -65,3 +67,4 @@ Version | Changelog
 0.8.0 | Realeased most of the tool working.
 0.8.1 | Fixed the tool adding a SnapToGridd component to the collider.
 0.9 | Added the ability to reload saved maps.
+0.9.1 | Added option to create random tiles and set their sorting layer.
