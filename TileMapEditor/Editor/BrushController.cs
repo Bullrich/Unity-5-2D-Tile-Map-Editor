@@ -41,9 +41,10 @@ namespace TileMapEditor {
             return (brush != null);
         }
 
-        public void DestroyBrush() {
-            if (brush != null)
-                DestroyImmediate(brush.gameObject);
+        public void DestroyBrush(Transform tileMapTran) {
+            foreach (Transform t in tileMapTran)
+                if (t.GetComponent<TileBrush>() != null)
+                    DestroyImmediate(t.gameObject);
         }
 
         public void UpdateBrush(Sprite sprite) {

@@ -13,7 +13,7 @@ namespace TileMapEditor {
 
         BrushController getBrController() {
             if (brController == null)
-                brController = new BrushController();
+                brController =CreateInstance<BrushController>();
             if (!brController.BrushExists())
                 brController.CreateBrush(map);
             return brController;
@@ -186,15 +186,16 @@ namespace TileMapEditor {
         }
 
         private void OnDisable() {
-            getBrController().DestroyBrush();
+            if(map.texture2D != null)
+            getBrController().DestroyBrush(map.transform);
         }
 
         private void OnSceneGUI() {
-            if (getBrController().BrushExists()) {
+            if (map.texture2D != null && getBrController().BrushExists()) {
                 UpdateHitPosition();
                 getBrController().MoveBrush(map, mouseHitPos, mouseOnMap);
 
-                if (map.texture2D != null && mouseOnMap) {
+                if (mouseOnMap) {
                     Event current = Event.current;
                     if (current.shift)
                         DrawTile();
