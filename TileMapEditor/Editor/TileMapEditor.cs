@@ -74,54 +74,70 @@ namespace TileMapEditor {
                     loadMap = null;
                 }
             } else {
-                EditorGUILayout.LabelField("Tile Size:", map.tileSize.x + "x" + map.tileSize.y);
-                map.tilePadding = EditorGUILayout.Vector2Field("Tile Padding", map.tilePadding);
-                EditorGUILayout.LabelField("Grid Size in Units:", map.gridSize.x + "x" + map.gridSize.y);
-                EditorGUILayout.LabelField("Pixels To Units:", map.pixelsToUnits.ToString());
-                if (!getBrController().BrushExists())
-                    getBrController().CreateBrush(map);
+                // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + - 
+                GUILayout.BeginVertical(EditorStyles.helpBox);
 
-                getBrController().RandomTile(map.randomTile);
+                MapInformation(map);
 
-                getBrController().UpdateBrush(map.currentTileBrush);
-
-                EditorGUILayout.Space();
-
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField((LayerMask.LayerToName(map.collisionLayer) != "" ? LayerMask.LayerToName(map.collisionLayer) : "Invalid layer"));
-                map.collisionLayer = EditorGUILayout.IntSlider(map.collisionLayer, 0, 31);
-                EditorGUILayout.EndHorizontal();
-
-                map.randomTile = EditorGUILayout.Toggle("Random Tile", map.randomTile);
-                map.spriteLayer = EditorGUILayout.IntField("Sprite Layer", map.spriteLayer);
+                // + - + - + - + - + - + - + - + - + - + - + - + - + - + - + - 
+                EditorGUILayout.EndVertical();
 
                 map.mapName = EditorGUILayout.TextField("Map name: ", map.mapName);
-                EditorGUILayout.LabelField("COUNT: " + map.tiles.Count);
-
-                if (GUILayout.Button("Clear Tiles"))
-                    if (EditorUtility.DisplayDialog("Clear map's tiles?", "Are you sure?", "Clear", "Do not clear"))
-                        ClearMap();
-
-                EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("Create Colliders"))
-                    if (map.tileContainer != null)
-                        AddColliders(map.tileContainer);
                 if (GUILayout.Button("Create Prefab"))
-                    if (!IsNullOrWhiteSpace(map.mapName)) {
-                        if (EditorUtility.DisplayDialog("Save map", "Do you want to save this map as " + map.mapName + ".prefab?\n If a prefab with the same name is found it will be overwritten.", "Yes", "No")) {
+                    if (!IsNullOrWhiteSpace(map.mapName))
+                    {
+                        if (EditorUtility.DisplayDialog("Save map", "Do you want to save this map as " + map.mapName + ".prefab?\n If a prefab with the same name is found it will be overwritten.", "Yes", "No"))
+                        {
                             map.tileContainer.name = map.mapName;
                             CreatePrefab(map.tileContainer);
                         }
-                    } else {
+                    }
+                    else
+                    {
                         EditorUtility.DisplayDialog("Name missing", "You have to set a name to the map to save it", "Ok");
                         Debug.Log("Called");
                     }
-                EditorGUILayout.EndHorizontal();
-
                 EditorGUILayout.HelpBox("SHIFT TO ADD TILES \nALT TO DELETE THEM", MessageType.Info);
             }
 
             EditorGUILayout.EndVertical();
+        }
+
+        void MapInformation(TileMap currentMap)
+        {
+            EditorGUILayout.LabelField("Tile Size:", currentMap.tileSize.x + "x" + currentMap.tileSize.y);
+            currentMap.tilePadding = EditorGUILayout.Vector2Field("Tile Padding", currentMap.tilePadding);
+            EditorGUILayout.LabelField("Grid Size in Units:", currentMap.gridSize.x + "x" + currentMap.gridSize.y);
+            EditorGUILayout.LabelField("Pixels To Units:", currentMap.pixelsToUnits.ToString());
+            if (!getBrController().BrushExists())
+                getBrController().CreateBrush(currentMap);
+
+            getBrController().RandomTile(currentMap.randomTile);
+
+            getBrController().UpdateBrush(currentMap.currentTileBrush);
+
+            EditorGUILayout.Space();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField((LayerMask.LayerToName(currentMap.collisionLayer) != "" ? LayerMask.LayerToName(map.collisionLayer) : "Invalid layer"));
+            currentMap.collisionLayer = EditorGUILayout.IntSlider(currentMap.collisionLayer, 0, 31);
+            EditorGUILayout.EndHorizontal();
+
+            currentMap.randomTile = EditorGUILayout.Toggle("Random Tile", currentMap.randomTile);
+            currentMap.spriteLayer = EditorGUILayout.IntField("Sprite Layer", currentMap.spriteLayer);
+
+            EditorGUILayout.LabelField("COUNT: " + currentMap.tiles.Count);
+
+
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Create Colliders"))
+                if (currentMap.tileContainer != null)
+                    AddColliders(currentMap.tileContainer);
+            if (GUILayout.Button("Clear Tiles"))
+                if (EditorUtility.DisplayDialog("Clear map's tiles?", "Are you sure?", "Clear", "Do not clear"))
+                    ClearMap();
+            EditorGUILayout.EndHorizontal();
         }
 
         private void LoadMap(Map loadMap) {
