@@ -14,6 +14,7 @@ namespace TileMapEditor {
             gridSize = new Vector2();
 
         public Object[] spriteReferences;
+        public SortingLayer spriteSortingLayer;
 
         public int
             pixelsToUnits = 100,
@@ -22,11 +23,13 @@ namespace TileMapEditor {
             collisionLayer;
 
         public GameObject tileContainer;
-        public string mapName = "Tilemap";
+        public string mapName = "Tilemap",
+            layerName = "layer";
 
-        public bool randomTile;
+        public bool randomTile, hasColliders;
 
         public List<Tile> tiles;
+        
 
         public Sprite currentTileBrush {
             get { return spriteReferences[tileID] as Sprite; }

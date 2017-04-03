@@ -13,7 +13,7 @@ namespace TileMapEditor {
         GameObject colliderObj;
         //LayerMask collision;
         //this function takes a list of polygons as a parameter, this list of polygons represent all the polygons that constitute collision in your level.
-        public List<List<Vector2>> UniteCollisionPolygons(List<List<Vector2>> polygons, Transform spawnPoint, int coll) {
+        public List<List<Vector2>> UniteCollisionPolygons(List<List<Vector2>> polygons, Transform spawnPoint, LayerMask coll) {
             //this is going to be the result of the method
             List<List<Vector2>> unitedPolygons = new List<List<Vector2>>();
             Clipper clipper = new Clipper();
