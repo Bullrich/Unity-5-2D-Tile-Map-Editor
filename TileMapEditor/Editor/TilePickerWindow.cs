@@ -17,7 +17,7 @@ namespace TileMapEditor{
 
         public Vector2 scrollPosition = Vector2.zero;
 
-        [MenuItem("Window/Tile Picker")]
+        [MenuItem("Window/Map Editor/Tile Picker")]
         public static void OpenTilePickerWindow()
         {
             var window = EditorWindow.GetWindow(typeof(TilePickerWindow));
